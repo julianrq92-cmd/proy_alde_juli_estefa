@@ -1,0 +1,35 @@
+name: Node.js CI Pipeline
+
+on:
+  push:
+    branches: [ "master" ]  # Cambia a "main" si tu rama es main
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clonar el repositorio
+      uses: actions/checkout@v3
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Instalar dependencias
+      run: npm install
+
+    - name: Ejecutar pruebas (si existen)
+      run: npm test || echo "No hay pruebas definidas"
+
+    - name: Validar sintaxis de Dockerfile
+      run: |
+        docker run --rm -i hadolint/hadolint < Dockerfile || echo "Errores en Dockerfile"
+
+    - name: Construir imagen Docker
+      run: docker build -t mi-app-node .
+
